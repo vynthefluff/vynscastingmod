@@ -7,6 +7,7 @@ using OVR.OpenVR;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 
 /*
  
@@ -52,7 +53,16 @@ namespace vynscastingmod
                 camera.fieldOfView = 90;
                 camera.nearClipPlane = 0.01f;
                 camera.farClipPlane = 2500;
-                camera.depth = 0;
+                camera.depth = Camera.main.depth + 1;
+                
+                
+                UniversalAdditionalCameraData addCam = camera.AddComponent<UniversalAdditionalCameraData>();
+                
+                addCam.requiresDepthTexture = false;
+                addCam.requiresColorTexture = false;
+                addCam.renderPostProcessing = false;
+                addCam.SetRenderer(0); 
+                addCam.renderType = CameraRenderType.Base;
                 
                 initialized = true;
             }
@@ -62,6 +72,7 @@ namespace vynscastingmod
             HandleLoadedRigs();
             HandleTargetSwitching();
             HandleCastingBinds();
+            HandleRigModifiers();
             HandleCameraMovement();
         }
 
@@ -132,21 +143,40 @@ namespace vynscastingmod
             
             if(Keyboard.current.pKey.wasPressedThisFrame) headLock = !headLock;
 
-            if (Keyboard.current.minusKey.isPressed) moveSmoothing -= 0.01f;
-            if (Keyboard.current.equalsKey.isPressed) moveSmoothing += 0.01f;
-            if (Keyboard.current.leftBracketKey.isPressed) rotSmoothing -= 0.01f;
-            if (Keyboard.current.rightBracketKey.isPressed) rotSmoothing += 0.01f;
+            if (Keyboard.current.minusKey.isPressed) moveSmoothing -= 0.0025f;
+            if (Keyboard.current.equalsKey.isPressed) moveSmoothing += 0.0025f;
+            if (Keyboard.current.leftBracketKey.isPressed) rotSmoothing -= 0.0025f;
+            if (Keyboard.current.rightBracketKey.isPressed) rotSmoothing += 0.0025f;
+            
+            
+            if(Keyboard.current.semicolonKey.isPressed) camera.fieldOfView -= 10 * Time.deltaTime;
+            if(Keyboard.current.quoteKey.isPressed) camera.fieldOfView += 10 * Time.deltaTime;
             
             moveSmoothing = Mathf.Clamp(moveSmoothing, 0, 1);
             rotSmoothing = Mathf.Clamp(rotSmoothing, 0, 1);
         }
 
+        private void HandleRigModifiers()
+        {
+            float lerpDelta = Time.deltaTime * 120; //always gonna have 120fps-like lerping
+            
+            target.lerpValueBody = 0.155f * lerpDelta;
+            target.lerpValueFingers = 0.155f * lerpDelta;
+        }
         private void HandleCameraMovement()
         {
             Transform targetTransform = headLock ? target.head.rigTarget : target.transform;
             Transform cameraTransform = camera.transform;
             
             Vector3 targetPosition = targetTransform.position;
+            
+            //headlock rly offsets shi for some reason:
+            if (headLock)
+            {
+                targetPosition -= targetTransform.up * 1.5f;
+                targetPosition += targetTransform.up * 0.18f;
+            }
+            
             targetPosition += targetTransform.up * yOffset;
             targetPosition += targetTransform.right * xOffset;
             targetPosition += targetTransform.forward * zOffset;
@@ -164,23 +194,36 @@ namespace vynscastingmod
             if (!isUiOpen) return;
 
             roomToJoin = GUI.TextField(new Rect(5, 5, 200, 30), roomToJoin).ToUpper();
-            
-            if(PhotonNetwork.InRoom)    
-                if(GUI.Button(new Rect(5, 40, 200, 30), "Leave Room")) PhotonNetwork.Disconnect();
-            else
-                if(GUI.Button(new Rect(5, 40, 200, 30), "Join Room")) PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(roomToJoin, JoinType.Solo);
 
-            string bindings = "ESC -> Toggle UI (this)\n\n";
+            if (PhotonNetwork.InRoom)
+            { 
+                if (GUI.Button(new Rect(5, 40, 200, 30), "Leave Room")) PhotonNetwork.Disconnect();
+            }
+            else if(GUI.Button(new Rect(5, 40, 200, 30), "Join Room")) PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(roomToJoin, JoinType.Solo);
+
+            string labelText = "Bindings:\n\n";
+
+            labelText += "ESC -> Toggle UI (this)\n";
+            labelText += "WASDQE -> Offset Camera Position\n";
+            labelText += "R -> Reset Offsets\n";
+            labelText += "P -> Toggle Headlock\n";
+            labelText += "NUMKEYS -> Switch Target\n";
+            labelText += "-= -> Decrease/Increase movement smoothing\n";
+            labelText += "[] -> Decrease/Increase rotation smoothing\n\n\n";
+            labelText += ";' -> Decrease/Increase FOV\n\n\n";
+
             
-            bindings += "WASDQE -> Offset Camera Position\n";
-            bindings += "R -> Reset Offsets\n";
-            bindings += "P -> Toggle Headlock\n";
-            bindings += "NUMKEYS -> Switch Target\n\n";
+            labelText += "Settings:\n\n";
+
+            labelText += $"X Offset: {xOffset}\n";
+            labelText += $"Y Offset: {yOffset}\n";
+            labelText += $"Z Offset: {zOffset}\n";
+            labelText += $"Headlock: {headLock}\n";
+            labelText += $"Move Smoothing: {moveSmoothing}\n";
+            labelText += $"Rot Smoothing: {rotSmoothing}\n";
+            labelText += $"FOV: {camera.fieldOfView}\n";
             
-            bindings += "-= -> Decrease/Increase movement smoothing\n";
-            bindings += "[] -> Decrease/Increase rotation smoothing\n";
-            
-            GUI.Label(new Rect(5,5, Screen.width-10, Screen.height-10), bindings);
+            GUI.Label(new Rect(5,75, Screen.width-10, Screen.height-75), labelText);
             // Adding UI soon, no need for now with da binds :3
         }
 
