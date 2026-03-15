@@ -1,8 +1,11 @@
 # vynscastingmod :3 
 
 Feature rich, intuitive gorilla tag casting mod.
+
 Formerly known as frapster's casting mod pre-recode.
+
 This casting mod is being made for the sole reason that there are no longer any good free casting mods. Casting should be free and open, not behind a paywall, sakuraa.
+
 
 ## Todo:
 - Make the camera actually work (duh)
