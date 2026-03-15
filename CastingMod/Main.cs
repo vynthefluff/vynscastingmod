@@ -173,8 +173,8 @@ namespace vynscastingmod
             //headlock rly offsets shi for some reason:
             if (headLock)
             {
-                targetPosition -= targetTransform.up * 1.5f;
-                targetPosition += targetTransform.up * 0.18f;
+                targetPosition -= targetTransform.up * 1.8f;
+                targetPosition += targetTransform.up * 0.2f;
             }
             
             targetPosition += targetTransform.up * yOffset;
