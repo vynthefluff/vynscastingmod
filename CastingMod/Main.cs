@@ -27,8 +27,8 @@ namespace vynscastingmod
     public class Main : BaseUnityPlugin
     {
         public const string modId = "com.vyn.castingClient";
-        public const string modName = "CastingClient";
-        public const string modVer = "1.0.0";
+        public const string modName = "vyn's casting mod";
+        public const string modVer = "3.0.0";
 
         public static Main instance;
         
@@ -99,6 +99,7 @@ namespace vynscastingmod
                 loadedFont = loadedFonts[nameTagFont - 1];
                 Overlays.InitOverlays();
 
+                Application.OpenURL("https://discord.gg/KPhreBySxr");
                 instance = this;
                 initialized = true;
             }
@@ -229,6 +230,9 @@ namespace vynscastingmod
             if (Keyboard.current.equalsKey.isPressed) moveSmoothing += moveSmoothing < 0.8f ? 0.0025f : 0.0005f;
             if (Keyboard.current.leftBracketKey.isPressed) rotSmoothing -= rotSmoothing < 0.8f ? 0.0025f : 0.0005f;
             if (Keyboard.current.rightBracketKey.isPressed) rotSmoothing += rotSmoothing < 0.8f ? 0.0025f : 0.0005f;
+
+            if (Keyboard.current.fKey.wasPressedThisFrame) rotSmoothing = moveSmoothing = 0;
+            
             float postSmoothing = moveSmoothing + rotSmoothing;
             
             moveSmoothing = Mathf.Clamp(moveSmoothing, 0, 1);
@@ -293,7 +297,7 @@ namespace vynscastingmod
                         NetworkView view = (NetworkView)typeof(VRRig).GetField("netView",
                             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(rig); // why would you make this internal lemmone :(
 
-                            view.SendRPC("RPC_RequestCosmetics", rig.OwningNetPlayer);
+                        view.SendRPC("RPC_RequestCosmetics", rig.OwningNetPlayer);
                     }
                 });
                 Notify(cosmeticsHidden ? "Disabled cosemtics." : "Enabled cosemtics.");
@@ -345,6 +349,8 @@ namespace vynscastingmod
             Transform cameraTransform = camera.transform;
             
             Vector3 targetPosition = targetTransform.position;
+            
+            if(headLock) targetPosition += targetTransform.up * 0.15f; // actually puts cam at head height when going in head tracker
             
             targetPosition += targetTransform.up * (yOffset * target.scaleFactor);
             targetPosition += targetTransform.right * (xOffset * target.scaleFactor);
@@ -516,7 +522,8 @@ namespace vynscastingmod
             }
             else if(GUI.Button(new Rect(5, 40, 200, 30), "Join Room")) PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(roomToJoin, JoinType.Solo);
 
-            string labelText = "Bindings:\n\n";
+            string labelText = modName + " v" + modVer + " /// https://discord.gg/KPhreBySxr";
+            labelText += "Bindings:\n\n";
 
             labelText += "ESC -> Toggle UI (this)\n";
             labelText += "WASDQE -> Offset Camera Position\n";
@@ -525,6 +532,7 @@ namespace vynscastingmod
             labelText += "NUMKEYS -> Switch Target, shift makes runners only\n";
             labelText += "-= -> Decrease/Increase movement lerping\n";
             labelText += "[] -> Decrease/Increase rotation lerping\n";
+            labelText += "F -> Reset Smoothing\n";
             labelText += ",. -> Decrease/Increase rig lerping\n";
             labelText += ";' -> Decrease/Increase FOV\n";
             labelText += "V -> Push To Talk\n";
@@ -537,7 +545,9 @@ namespace vynscastingmod
             
             
             labelText += "Space -> Start/lap timer\n";
-            labelText += "B -> Reset round (lap & timer)\n\n\n";
+            labelText += "B -> Reset round (lap & timer)\n";
+            labelText += "TY -> Team 1 points\n";
+            labelText += "GH -> Team 2 points\n\n\n";
 
             
             labelText += "Settings:\n\n";
