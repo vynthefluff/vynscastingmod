@@ -143,14 +143,18 @@ namespace vynscastingmod
             
             if(Keyboard.current.pKey.wasPressedThisFrame) headLock = !headLock;
 
-            if (Keyboard.current.minusKey.isPressed) moveSmoothing -= 0.0025f;
-            if (Keyboard.current.equalsKey.isPressed) moveSmoothing += 0.0025f;
-            if (Keyboard.current.leftBracketKey.isPressed) rotSmoothing -= 0.0025f;
-            if (Keyboard.current.rightBracketKey.isPressed) rotSmoothing += 0.0025f;
+            // code looks horrible but idk - makes it easier to change smoothing at high values.
+            if (Keyboard.current.minusKey.isPressed) moveSmoothing -= moveSmoothing < 0.8f ? 0.0025f : 0.0005f;
+            if (Keyboard.current.equalsKey.isPressed) moveSmoothing += moveSmoothing < 0.8f ? 0.0025f : 0.0005f;
+            if (Keyboard.current.leftBracketKey.isPressed) rotSmoothing -= rotSmoothing < 0.8f ? 0.0025f : 0.0005f;
+            if (Keyboard.current.rightBracketKey.isPressed) rotSmoothing += rotSmoothing < 0.8f ? 0.0025f : 0.0005f;
+            
+            if (Keyboard.current.commaKey.isPressed) rigLerpingMultiplier -= 3 * Time.deltaTime;
+            if (Keyboard.current.periodKey.isPressed) rigLerpingMultiplier += 3 * Time.deltaTime;
             
             
-            if(Keyboard.current.semicolonKey.isPressed) camera.fieldOfView -= 10 * Time.deltaTime;
-            if(Keyboard.current.quoteKey.isPressed) camera.fieldOfView += 10 * Time.deltaTime;
+            if(Keyboard.current.semicolonKey.isPressed) camera.fieldOfView -= 5 * Time.deltaTime;
+            if(Keyboard.current.quoteKey.isPressed) camera.fieldOfView += 5 * Time.deltaTime;
             
             moveSmoothing = Mathf.Clamp(moveSmoothing, 0, 1);
             rotSmoothing = Mathf.Clamp(rotSmoothing, 0, 1);
@@ -160,8 +164,8 @@ namespace vynscastingmod
         {
             float lerpDelta = Time.deltaTime * 120; //always gonna have 120fps-like lerping
             
-            target.lerpValueBody = 0.155f * lerpDelta;
-            target.lerpValueFingers = 0.155f * lerpDelta;
+            target.lerpValueBody = (0.155f * rigLerpingMultiplier) * lerpDelta;
+            target.lerpValueFingers = (0.155f * rigLerpingMultiplier) * lerpDelta;
         }
         private void HandleCameraMovement()
         {
@@ -203,9 +207,11 @@ namespace vynscastingmod
             labelText += "R -> Reset Offsets\n";
             labelText += "P -> Toggle Headlock\n";
             labelText += "NUMKEYS -> Switch Target\n";
-            labelText += "-= -> Decrease/Increase movement smoothing\n";
-            labelText += "[] -> Decrease/Increase rotation smoothing\n\n\n";
-            labelText += ";' -> Decrease/Increase FOV\n\n\n";
+            labelText += "-= -> Decrease/Increase movement lerping\n";
+            labelText += "[] -> Decrease/Increase rotation lerping\n";
+            labelText += ",. -> Decrease/Increase rig lerping\n";
+            labelText += ";' -> Decrease/Increase FOV\n";
+            labelText += "V -> Push To Talk\n\n\n";
 
             
             labelText += "Settings:\n\n";
@@ -214,8 +220,9 @@ namespace vynscastingmod
             labelText += $"Y Offset: {yOffset}\n";
             labelText += $"Z Offset: {zOffset}\n";
             labelText += $"Headlock: {headLock}\n";
-            labelText += $"Move Smoothing: {moveSmoothing}\n";
-            labelText += $"Rot Smoothing: {rotSmoothing}\n";
+            labelText += $"Move Lerping: {moveSmoothing}\n";
+            labelText += $"Rot Lerping: {rotSmoothing}\n";
+            labelText += $"Rig Lerping: {rigLerpingMultiplier}\n";
             labelText += $"FOV: {camera.fieldOfView}\n";
             
             GUI.Label(new Rect(5,75, Screen.width-10, Screen.height-75), labelText);
@@ -238,7 +245,7 @@ namespace vynscastingmod
         #region Setting variables
 
         private float xOffset = 0, yOffset = 0, zOffset = 0;
-        private float moveSmoothing = 0, rotSmoothing = 0;
+        private float moveSmoothing = 0, rotSmoothing = 0, rigLerpingMultiplier = 1;
         private bool headLock = true;
         
 
