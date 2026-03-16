@@ -27,7 +27,7 @@ namespace vynscastingmod
         public const string modName = "CastingClient";
         public const string modVer = "1.0.0";
         
-        public void Update()
+        public void LateUpdate() // Testing lateUpdate, should fix camera jittering.
         {
             if (!initialized)
             {
@@ -68,6 +68,7 @@ namespace vynscastingmod
             }
             
             Application.targetFrameRate = int.MaxValue; // Gtag's fps is capped at 144 by default - no thanks.
+            uiNotificationTimer += Time.deltaTime;
 
             HandleLoadedRigs();
             HandleTargetSwitching();
@@ -133,6 +134,15 @@ namespace vynscastingmod
         {
             if(Keyboard.current.escapeKey.wasPressedThisFrame) isUiOpen = !isUiOpen;
             
+            if(Keyboard.current.vKey.wasPressedThisFrame)
+            {
+                bool muted = GorillaComputer.instance.pttType == "PUSH TO TALK";
+                GorillaComputer.instance.pttType = muted ? "PUSH TO MUTE" : "PUSH TO TALK";
+                Notify(muted ? "Unmuted!" : "Muted!");
+            }
+
+            float offset = xOffset + yOffset + zOffset; // save our combined offset before checking for keypresses, better than calling Notify() 7 times.
+            
             if(Keyboard.current.dKey.isPressed) xOffset += 1 * Time.deltaTime;
             if(Keyboard.current.aKey.isPressed) xOffset -= 1 * Time.deltaTime;
             if(Keyboard.current.wKey.isPressed) zOffset += 1 * Time.deltaTime;
@@ -141,20 +151,39 @@ namespace vynscastingmod
             if(Keyboard.current.qKey.isPressed) yOffset -= 1 * Time.deltaTime;
             if (Keyboard.current.rKey.isPressed) xOffset = yOffset = zOffset = 0;
             
-            if(Keyboard.current.pKey.wasPressedThisFrame) headLock = !headLock;
+            float postOffset = xOffset + yOffset + zOffset;
+
+            if (postOffset != offset) Notify($"Changed offsets!\nX Offset: {xOffset}\nY Offset: {yOffset}\nZ Offset: {zOffset}");
+            
+
+            if (Keyboard.current.pKey.wasPressedThisFrame)
+            {
+                headLock = !headLock;
+                Notify(headLock ? "Enabled headlock!" : "Disabled headlock!");
+            }
+
 
             // code looks horrible but idk - makes it easier to change smoothing at high values.
+            float smoothing = moveSmoothing + rotSmoothing;
             if (Keyboard.current.minusKey.isPressed) moveSmoothing -= moveSmoothing < 0.8f ? 0.0025f : 0.0005f;
             if (Keyboard.current.equalsKey.isPressed) moveSmoothing += moveSmoothing < 0.8f ? 0.0025f : 0.0005f;
             if (Keyboard.current.leftBracketKey.isPressed) rotSmoothing -= rotSmoothing < 0.8f ? 0.0025f : 0.0005f;
             if (Keyboard.current.rightBracketKey.isPressed) rotSmoothing += rotSmoothing < 0.8f ? 0.0025f : 0.0005f;
+            float postSmoothing = moveSmoothing + rotSmoothing;
+
+            if (postSmoothing != smoothing) Notify($"Changed smoothing!\nMovement: {moveSmoothing}\nRotation: {rotSmoothing}");
             
+            float lastRiglerp = rigLerpingMultiplier;
             if (Keyboard.current.commaKey.isPressed) rigLerpingMultiplier -= 3 * Time.deltaTime;
             if (Keyboard.current.periodKey.isPressed) rigLerpingMultiplier += 3 * Time.deltaTime;
             
-            
+            if(rigLerpingMultiplier != lastRiglerp) Notify($"Changed rig lerping!\nLerping: {rigLerpingMultiplier}");
+
+            float lastFov = camera.fieldOfView;
             if(Keyboard.current.semicolonKey.isPressed) camera.fieldOfView -= 5 * Time.deltaTime;
             if(Keyboard.current.quoteKey.isPressed) camera.fieldOfView += 5 * Time.deltaTime;
+            
+            if(camera.fieldOfView != lastFov) Notify($"Changed FOV: {camera.fieldOfView}");
             
             moveSmoothing = Mathf.Clamp(moveSmoothing, 0, 1);
             rotSmoothing = Mathf.Clamp(rotSmoothing, 0, 1);
@@ -174,11 +203,9 @@ namespace vynscastingmod
             
             Vector3 targetPosition = targetTransform.position;
             
-            //headlock rly offsets shi for some reason:
-            
-            targetPosition += targetTransform.up * yOffset;
-            targetPosition += targetTransform.right * xOffset;
-            targetPosition += targetTransform.forward * zOffset;
+            targetPosition += targetTransform.up * (yOffset * target.scaleFactor);
+            targetPosition += targetTransform.right * (xOffset * target.scaleFactor);
+            targetPosition += targetTransform.forward * (zOffset * target.scaleFactor);
             
             Quaternion targetRotation = headLock ? targetTransform.rotation : Quaternion.LookRotation(targetTransform.position-cameraTransform.position);
             
@@ -188,8 +215,40 @@ namespace vynscastingmod
             cameraTransform.rotation = Quaternion.Lerp(cameraTransform.rotation, targetRotation, (1-rotSmoothing) * lerpDelta);
         }
 
+        #region GUI
+        
+
+        private void Notify(string message)
+        {
+            uiNotificationTimer = 0;
+            uiNotificationText = message;
+        }
+
+        private void RenderOverlays()
+        {
+            if (centeredText == null)
+            {
+                centeredText = new GUIStyle(GUI.skin.label);
+                centeredText.alignment = TextAnchor.UpperCenter;
+                centeredText.fontSize = 18;
+            }
+            if (!uiNotificationText.IsNullOrEmpty() && uiNotificationTimer < 3) // only show notif text under 3 secs
+            {
+                Color color = Color.white;
+                color.a = 1 - (uiNotificationTimer / 3);
+                centeredText.normal.textColor = color;
+                GUI.Label(new Rect(0,0, Screen.width, Screen.height), uiNotificationText, centeredText);
+            }
+            
+            centeredText.normal.textColor = Color.white;
+        }
+        
         public void OnGUI()
         {
+            if (!initialized) return;
+
+            RenderOverlays();
+            
             if (!isUiOpen) return;
 
             roomToJoin = GUI.TextField(new Rect(5, 5, 200, 30), roomToJoin).ToUpper();
@@ -228,13 +287,20 @@ namespace vynscastingmod
             GUI.Label(new Rect(5,75, Screen.width-10, Screen.height-75), labelText);
             // Adding UI soon, no need for now with da binds :3
         }
+        
+        #endregion
 
         #region Camera variables
+        
+        private GUIStyle centeredText = null;
         
         private List<VRRig> loadedRigs = new List<VRRig>();
         private VRRig target;
         private VRRig offlineRig;
         private bool initialized = false, isUiOpen = true;
+        private float uiNotificationTimer = 0;
+        private string uiNotificationText = "";
+            
         public Camera camera;
         
         private string roomToJoin = "LUCIO";
