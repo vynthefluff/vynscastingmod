@@ -8,6 +8,7 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
+using vynscastingmod.Objects;
 
 /*
  
@@ -189,7 +190,12 @@ namespace vynscastingmod
             if(Keyboard.current.quoteKey.isPressed) camera.fieldOfView += 5 * Time.deltaTime;
             
             if(camera.fieldOfView != lastFov) Notify($"Changed FOV: {camera.fieldOfView}");
-            
+
+            if (Keyboard.current.f1Key.wasPressedThisFrame)
+            {
+                nametagsEnabled = !nametagsEnabled;
+                Notify(nametagsEnabled ? "Enabled nametags!" : "Disabled nametags!");
+            }
         }
 
         private void HandleRigModifiers()
@@ -198,6 +204,15 @@ namespace vynscastingmod
             
             target.lerpValueBody = (0.155f * rigLerpingMultiplier) * lerpDelta;
             target.lerpValueFingers = (0.155f * rigLerpingMultiplier) * lerpDelta;
+
+            if (nametagsEnabled)
+            {
+                loadedRigs.ForEach(rig =>
+                {
+                    rig.GetOrAddComponent<NametagObject>(out var unused);
+                });
+            }
+            
         }
         private void HandleCameraMovement()
         {
@@ -273,7 +288,8 @@ namespace vynscastingmod
             labelText += "[] -> Decrease/Increase rotation lerping\n";
             labelText += ",. -> Decrease/Increase rig lerping\n";
             labelText += ";' -> Decrease/Increase FOV\n";
-            labelText += "V -> Push To Talk\n\n\n";
+            labelText += "V -> Push To Talk\n";
+            labelText += "F1 -> Toggle Nametags\n\n\n";
 
             
             labelText += "Settings:\n\n";
@@ -286,6 +302,7 @@ namespace vynscastingmod
             labelText += $"Rot Lerping: {rotSmoothing}\n";
             labelText += $"Rig Lerping: {rigLerpingMultiplier}\n";
             labelText += $"FOV: {camera.fieldOfView}\n";
+            labelText += $"Nametags: {nametagsEnabled}\n";
             
             GUI.Label(new Rect(5,75, Screen.width-10, Screen.height-75), labelText);
             // Adding UI soon, no need for now with da binds :3
@@ -315,7 +332,7 @@ namespace vynscastingmod
 
         private float xOffset = 0, yOffset = 0, zOffset = 0;
         private float moveSmoothing = 0, rotSmoothing = 0, rigLerpingMultiplier = 1;
-        private bool headLock = true;
+        private bool headLock = true, nametagsEnabled = false;
         
 
         #endregion
