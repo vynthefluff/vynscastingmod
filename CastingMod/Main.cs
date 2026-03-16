@@ -5,6 +5,7 @@ using GorillaLocomotion;
 using GorillaNetworking;
 using OVR.OpenVR;
 using Photon.Pun;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
@@ -66,6 +67,33 @@ namespace vynscastingmod
                 addCam.renderPostProcessing = false;
                 addCam.SetRenderer(0); 
                 addCam.renderType = CameraRenderType.Base;
+                
+                
+                // This codes taken from my old casting mod btw, so sorry its janky.
+                
+                if (loadedFonts.IsNullOrEmpty())
+                {
+                    
+                    HashSet<string> fontListNames = new HashSet<string>();
+
+                    TMP_FontAsset[] fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
+
+                    foreach (TMP_FontAsset f in fonts)
+                    {
+                        if (f == null) 
+                            continue;
+
+                        if (!fontListNames.Contains(f.name))
+                        {
+                            fontListNames.Add(f.name);
+                            loadedFonts.Add(f);
+                        }
+                    }
+
+                }
+                
+                loadedFont = loadedFonts[nameTagFont - 1];
+                
 
                 instance = this;
                 initialized = true;
@@ -199,6 +227,14 @@ namespace vynscastingmod
                 nametagsEnabled = !nametagsEnabled;
                 Notify(nametagsEnabled ? "Enabled nametags!" : "Disabled nametags!");
             }
+            
+            if (Keyboard.current.f2Key.wasPressedThisFrame)
+            {
+                nameTagFont++;
+                if (nameTagFont > loadedFonts.Count) nameTagFont = 1;
+                loadedFont = loadedFonts[nameTagFont - 1];
+                Notify($"Set nametag font to: {nameTagFont}");
+            }
         }
 
         private void HandleRigModifiers()
@@ -323,10 +359,12 @@ namespace vynscastingmod
         private bool initialized = false, isUiOpen = true;
         private float uiNotificationTimer = 0;
         private string uiNotificationText = "";
+        private List<TMP_FontAsset> loadedFonts = new List<TMP_FontAsset>();
             
         public Camera camera;
         
         private string roomToJoin = "LUCIO";
+        
         
         #endregion
 
@@ -338,6 +376,8 @@ namespace vynscastingmod
         private bool headLock = true;
 
         public bool nametagsEnabled = false;
+        public int nameTagFont = 6;
+        public TMP_FontAsset loadedFont;
 
         #endregion
     }

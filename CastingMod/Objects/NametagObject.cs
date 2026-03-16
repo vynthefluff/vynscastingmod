@@ -1,4 +1,5 @@
 using System;
+using GorillaNetworking;
 using TMPro;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace vynscastingmod.Objects
         {
             attachedRig = GetComponentInParent<VRRig>();
             textObj = new GameObject().AddComponent<TextMeshPro>();
-            textObj.font = GameObject.FindObjectOfType<TMP_FontAsset>(); // should just get default gorilla tag font, fingers crossed
+            textObj.font = Main.instance.loadedFont;
             textObj.fontStyle = FontStyles.Bold;
             textObj.fontSize = 8;
             textObj.alignment = TextAlignmentOptions.CenterGeoAligned;
