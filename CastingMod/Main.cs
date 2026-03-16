@@ -36,16 +36,6 @@ namespace vynscastingmod
         {
             if (!initialized)
             {
-                try
-                {
-                    if (OpenVR.IsHmdPresent())
-                    {
-                        Destroy(this); // If user is in VR, destroy the casting mod.
-                        return;
-                    }
-                }
-                catch (Exception) { } // Normally if OpenVR isnt initialised, they're running in the oculus version without a headset connected, so they likely arent in VR.
-
 
                 if (GTPlayer.Instance == null) return;
                 offlineRig = GorillaTagger.Instance.offlineVRRig;
