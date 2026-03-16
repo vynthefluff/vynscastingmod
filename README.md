@@ -8,16 +8,11 @@ This casting mod is being made for the sole reason that there are no longer any 
 
 
 ## Todo:
-- Make the camera actually work (duh)
-- Ensure camera doesnt init in vr - casting only
-- Add basic ui, for joining codes etc
-- Add offset manager (WASD, R to reset)
-- Make lerping consistent across multiple refresh rates
-- Change smoothness amounts with arrow keys
+- fix jittering when low smoothing (should js be fixed by switching to lateUpdate)
+- Adjustable rig lerping (arrow keys?)
+- Add important features such as nametags, hiding cosmetics, etc
 - Autosaving config, load on init
-- Add important features such as nametags, etc
-- MAKE TOGGLEABLE FEATURES BOUND TO FUNCTION KEYS!!!!
 - Add overlays, with timer & team score & player scoreboard
 - Idk take suggestions for more ideas, bug fixes
 
-## All completed tasks will be marked with a `<<` on the right hand side.
+I love you :3
