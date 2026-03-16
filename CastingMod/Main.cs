@@ -171,11 +171,6 @@ namespace vynscastingmod
             Vector3 targetPosition = targetTransform.position;
             
             //headlock rly offsets shi for some reason:
-            if (headLock)
-            {
-                targetPosition -= targetTransform.up * 1.8f;
-                targetPosition += targetTransform.up * 0.2f;
-            }
             
             targetPosition += targetTransform.up * yOffset;
             targetPosition += targetTransform.right * xOffset;
