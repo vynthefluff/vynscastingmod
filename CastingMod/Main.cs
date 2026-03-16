@@ -269,6 +269,14 @@ namespace vynscastingmod
                 Notify($"Set score overlay to: {scoreOverlay}");
             }
             
+            if (Keyboard.current.f4Key.wasPressedThisFrame)
+            {
+                timeOfDay++;
+                BetterDayNightManager.instance.SetTimeOfDay(timeOfDay);
+                if (timeOfDay > 9) timeOfDay = 0;
+                Notify($"Set time of day to: {timeOfDay}");
+            }
+            
             
             // moving overlay thingy :3
             if (Keyboard.current.upArrowKey.isPressed) overlayY -= 3;
@@ -376,7 +384,7 @@ namespace vynscastingmod
 
             centeredText.normal.textColor = Color.white;
             int meow = overlayX;
-            if (overlayX - centerX < 20 && overlayX - centerX > -20) meow = centerX;
+            if (overlayX - centerX < 25 && overlayX - centerX > -25) meow = centerX;
 
             switch (scoreOverlay)
             {
@@ -501,11 +509,12 @@ namespace vynscastingmod
             labelText += "F1 -> Toggle Nametags\n";
             labelText += "F2 -> Change Nametag font\n";
             labelText += "F3 -> Switch Overlays\n";
-            labelText += "Arrows -> Move Overlays\n\n";
+            labelText += "F4 -> Change Time Of Day\n";
+            labelText += "Arrows -> Move Overlay\n\n";
             
             
             labelText += "Space -> Start/lap timer\n";
-            labelText += "V -> Reset round (lap & timer)\n\n\n";
+            labelText += "B -> Reset round (lap & timer)\n\n\n";
 
             
             labelText += "Settings:\n\n";
@@ -558,7 +567,7 @@ namespace vynscastingmod
         public int nameTagFont = 5, scoreOverlay = 0;
         public TMP_FontAsset loadedFont;
 
-        private int overlayX = Screen.width/2, overlayY = Screen.height - 100;
+        private int overlayX = Screen.width/2, overlayY = Screen.height - 100, timeOfDay = 0;
 
         #endregion
 
