@@ -237,6 +237,8 @@ namespace vynscastingmod
         private void HandleCastingBinds() // method was originally named HandleCameraOffsets, but i put perspective and other binds here too
         {
             if(Keyboard.current.escapeKey.wasPressedThisFrame) isUiOpen = !isUiOpen;
+
+            if (isUiOpen) return; // this was really annoying without.
             
             if(Keyboard.current.vKey.wasPressedThisFrame)
             {
