@@ -316,7 +316,7 @@ namespace vynscastingmod
             if(Keyboard.current.quoteKey.isPressed) camera.fieldOfView += 5 * Time.deltaTime;
             
             if(camera.fieldOfView != lastFov) Notify($"Changed FOV: {camera.fieldOfView}");
-    
+
             if (Keyboard.current.f1Key.wasPressedThisFrame)
             {
                 nametagsEnabled = !nametagsEnabled;
@@ -336,7 +336,10 @@ namespace vynscastingmod
                 scoreOverlay++;
                 if (scoreOverlay > (File.Exists("TeamInfo.png") ? 3 : 2)) scoreOverlay = 0;
                 
-                if(File.Exists("TeamInfo.png")) Overlays.customScoreboard.LoadImage(File.ReadAllBytes("TeamInfo.png"));
+                if (File.Exists("TeamInfo.png"))
+                    Overlays.customScoreboard.LoadImage(File.ReadAllBytes("TeamInfo.png"));
+                
+                
                 Notify($"Set score overlay to: {scoreOverlay}");
             }
             
@@ -344,8 +347,10 @@ namespace vynscastingmod
             {
                 leaderboardOverlay++;
                 if (leaderboardOverlay > (File.Exists("Scoreboard.png") ? 2 : 1)) leaderboardOverlay = 0;
+
+                if (File.Exists("Scoreboard.png"))
+                    Overlays.customLeaderboard.LoadImage(File.ReadAllBytes("Scoreboard.png"));
                 
-                if(File.Exists("Scoreboard.png")) Overlays.customLeaderboard.LoadImage(File.ReadAllBytes("Scoreboard.png"));
                 Notify($"Set leaderboard overlay to: {leaderboardOverlay}");
             }
             
@@ -510,7 +515,7 @@ namespace vynscastingmod
                     GUI.DrawTexture(new Rect(meow - 277, overlayY, 277 * 2, 45 * 2), Overlays.cgtPink);
                     break;
                 case 3:
-                    GUI.DrawTexture(new Rect(meow - 277, overlayY, 277 * 2, 45 * 2), Overlays.customLeaderboard);
+                    GUI.DrawTexture(new Rect(meow - 277, overlayY, 277 * 2, 45 * 2), Overlays.customScoreboard);
                     break;
 
             }
@@ -605,7 +610,7 @@ namespace vynscastingmod
                         GUI.DrawTexture(new Rect(0, leaderboardY-y, 200, 30), Overlays.leaderboardPart);
                         break;
                     case 2:
-                        GUI.DrawTexture(new Rect(0, leaderboardY-y, 200, 30), Overlays.customScoreboard);
+                        GUI.DrawTexture(new Rect(0, leaderboardY-y, 200, 30), Overlays.customLeaderboard);
                         break;
                 }
                 
