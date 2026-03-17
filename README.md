@@ -19,7 +19,9 @@ This casting mod is being made for the sole reason that there are no longer any 
 - Non-bloated UI, control everything with hotkeys.
 
 ## Todo:
-- Autosaving config, load on init
-- Idk take suggestions for more ideas, bug fixes
+- Custom overlay upload, make overlay parts draggable with mouse (team scores, names) LOCAL POSITIONS TO OVERLAY.
+- Autosaving config, load config on init
+- Implement GTR api to get peoples ranks on nametags, add FPS Checker, platform checker, prop checker maybe?
+- Basic GUI with sliders and shi idk :3
 
-I love you :3
+Want to see a feature in the casting mod? Make a suggestion in the discord server :D
