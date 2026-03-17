@@ -133,6 +133,8 @@ namespace vynscastingmod
             {
                 if (loadedRigs.Count > 1)
                 {
+                    FindObjectsOfType<NametagObject>().ForEach(no => Destroy(no));
+                    
                     loadedRigs.Clear();
                     loadedRigs.Add(offlineRig);
                 }
@@ -141,6 +143,8 @@ namespace vynscastingmod
 
             if (loadedRigs.Count != PhotonNetwork.CurrentRoom.PlayerCount)
             {
+                FindObjectsOfType<NametagObject>().ForEach(no => Destroy(no));
+                
                 loadedRigs.Clear();
                 loadedRigs.AddRange(GameObject.FindObjectsOfType<VRRig>());
                 loadedRigs.Reverse(); // reverse order so 0 is always our offlineRig.
@@ -613,7 +617,7 @@ namespace vynscastingmod
             
             cfg.WriteLine(nameTagFont);
             cfg.WriteLine(scoreOverlay);
-            
+            cfg.WriteLine(nametagsEnabled);
             cfg.Close();
         }
 
@@ -630,7 +634,17 @@ namespace vynscastingmod
             rigLerpingMultiplier = float.Parse(setts[5]);
             headLock = bool.Parse(setts[6]);
             nameTagFont = int.Parse(setts[7]);
+            loadedFont = loadedFonts[nameTagFont - 1];
             scoreOverlay = int.Parse(setts[8]);
+            nametagsEnabled = bool.Parse(setts[9]);
+            
+            if (nametagsEnabled)
+            {
+                loadedRigs.ForEach(rig =>
+                {
+                    rig.GetOrAddComponent<NametagObject>(out var unused);
+                });
+            }
             
             cfg.Close();
         }
