@@ -549,7 +549,7 @@ namespace vynscastingmod
                         break;
                 }
                 
-                GUI.Label(new Rect(3, leaderboardY-y, 194, 30), $"{num}  {plr.playerNameVisible}", labelStyle);
+                GUI.Label(new Rect(5, leaderboardY-y, 190, 30), $"{num}   {plr.playerNameVisible}", labelStyle);
 
                 y += 33;
                 num++;
