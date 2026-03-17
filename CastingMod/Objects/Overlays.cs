@@ -15,6 +15,7 @@ namespace vynscastingmod.Objects
         // store our overlays as base64 bytes
         
         public static Texture2D cgtDefault = new Texture2D(1,1), cgtPink = new Texture2D(1,1), leaderboardPart = new Texture2D(1,1);
+        public static Texture2D customScoreboard = new Texture2D(1,1), customLeaderboard = new Texture2D(1,1);
 
         public static byte[] leaderboardBytes = Convert.FromBase64String(
             "iVBORw0KGgoAAAANSUhEUgAAAMgAAAAeCAYAAABpP1GsAAACOklEQVR4Xu2aMUREcRzHexJXkU7DDZU3JFqKjtMUxw01RBctRUMiIhpqiDS0RJG4paMpohpyNJWONzbkaG2I09jS0HDicn0vxTn/6703vvc+txz////xvp/7fvzuubNqtZrTxgsC4SbQq3hVy7JSfmNadUF04Z7fCzkPgSARUM/3db+b6vqDn/tGED+0OBtYAhKkWze/JkFm/IRAED+0OBtoApLkWAGWJcmT1yAI4pUU5wJPQIL0KcSCBJn3GgZBvJLiXCgISJK8gsxKkmcvgRDECyXOhIaABBlQmCkJsuQlFIJ4ocSZUBGQJGcKNClJXt2CIYgbIfZDR0CCDCtUSoKsuoVDEDdC7IeSgCS5UrBRSfL2X0AECeXHTyg3AhJkTGeGJMgGgrjRYj+SBCTJjYL3S5KPVgCYIJGsBqHrBCTIhN7iEmQbQegEBAwEJMm9ljslSdUEiAlCbSJNQIKk68Ok1R92ESTS9SB8LBZrr1QqtxKkgwlCHyBg/po1reV3SXLQvM0EoTKRJ2Dbdle5XL6UID0IEvk6AMBEQM8ic1p/kSS5xn0mCH2BgAgkk8l4qVTKS5AEglAJCJifRRa1/ChJTv+2mSBUBQK/BNLpdMJxnEMJYiMItYCAeYqsaPlOkpzXt5kg1AQCDQSy2exgoVDYkSAjCEI1IGCeIutavpAk10wQKgKBJgLFYvErk8nkJMg4glAPCJinyJaWTxCEekDALMinlo8QhHpAoAUB/bq++yMIhCAAATOBbzBX96DaoP2FAAAAAElFTkSuQmCC");
