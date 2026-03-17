@@ -140,6 +140,18 @@ namespace vynscastingmod
             // Recently, Another Axiom altered the usage of GorillaParent, and there is no more a vrrigs list there, so we handle our own.
             if (!PhotonNetwork.InRoom)
             {
+                if (GorillaComputer.instance.roomFull)
+                {
+                    GorillaComputer.instance.roomFull = false;
+                    Notify("Room full!");
+                }
+                
+                if (GorillaComputer.instance.roomNotAllowed)
+                {
+                    GorillaComputer.instance.roomNotAllowed = false;
+                    Notify("Not allowed to join room!");
+                }
+                
                 if (loadedRigs.Count > 1)
                 {
                     FindObjectsOfType<NametagObject>().ForEach(no => Destroy(no));
