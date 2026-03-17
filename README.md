@@ -17,7 +17,8 @@ This casting mod is being made for the sole reason that there are no longer any 
 - Mic push-to-talk
 - Non-bloated UI, control everything with hotkeys.
 
-## Todo:- Add player leaderboard on left side (moveable w/ pageUp/pageDown?)
+## Todo:
+- Add player leaderboard on left side (moveable w/ pageUp/pageDown?)
 - Custom overlay upload, make overlay parts draggable with mouse (team scores, names) LOCAL POSITIONS TO OVERLAY.
 - Implement GTR api to get peoples ranks on nametags, add FPS Checker, platform checker, prop checker maybe?
 - Basic GUI with sliders and shi idk :3
