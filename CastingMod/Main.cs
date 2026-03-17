@@ -334,7 +334,7 @@ namespace vynscastingmod
             if (Keyboard.current.f3Key.wasPressedThisFrame)
             {
                 scoreOverlay++;
-                if (scoreOverlay > (File.Exists("TeamInfo.png") ? 3 : 2)) scoreOverlay = 0;
+                if (scoreOverlay > (File.Exists("TeamInfo.png") ? 4 : 3)) scoreOverlay = 0;
                 
                 if (File.Exists("TeamInfo.png"))
                     Overlays.customScoreboard.LoadImage(File.ReadAllBytes("TeamInfo.png"));
@@ -515,6 +515,9 @@ namespace vynscastingmod
                     GUI.DrawTexture(new Rect(meow - 277, overlayY, 277 * 2, 45 * 2), Overlays.cgtPink);
                     break;
                 case 3:
+                    GUI.DrawTexture(new Rect(meow - 277, overlayY, 277 * 2, 45 * 2), Overlays.vynDefault);
+                    break;
+                case 4:
                     GUI.DrawTexture(new Rect(meow - 277, overlayY, 277 * 2, 45 * 2), Overlays.customScoreboard);
                     break;
 
@@ -565,6 +568,8 @@ namespace vynscastingmod
             }else 
                 DrawOutline(new Rect(meow-150, overlayY+2, 300, 50), timeRunning.ToString("F1") + 
                                                                      (timeRunning.ToString("F1").Contains("-") ? "-" : ""), labelStyle);
+
+            labelStyle.fontSize = 24;
             
             time = TimeSpan.FromSeconds(timeToBeat);
             
