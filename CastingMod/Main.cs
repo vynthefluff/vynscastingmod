@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using BepInEx;
@@ -192,16 +193,22 @@ namespace vynscastingmod
         {
             if (target == null) target = offlineRig;
             
-            if (Keyboard.current.digit1Key.wasPressedThisFrame) setTarget(1);
-            if (Keyboard.current.digit2Key.wasPressedThisFrame) setTarget(2);
-            if (Keyboard.current.digit3Key.wasPressedThisFrame) setTarget(3);
-            if (Keyboard.current.digit4Key.wasPressedThisFrame) setTarget(4);
-            if (Keyboard.current.digit5Key.wasPressedThisFrame) setTarget(5);
-            if (Keyboard.current.digit6Key.wasPressedThisFrame) setTarget(6);
-            if (Keyboard.current.digit7Key.wasPressedThisFrame) setTarget(7);
-            if (Keyboard.current.digit8Key.wasPressedThisFrame) setTarget(8);
-            if (Keyboard.current.digit9Key.wasPressedThisFrame) setTarget(9);
-            if (Keyboard.current.digit0Key.wasPressedThisFrame) setTarget(0);
+            List<VRRig> targets = loadedRigs.ToList();
+            if (Keyboard.current.shiftKey.isPressed)
+                targets.RemoveAll(rig => rig.lavaParticleSystem.isPlaying || rig.rockParticleSystem.isPlaying); 
+            if (Keyboard.current.digit1Key.wasPressedThisFrame) setTarget(targets[1]);
+            if (Keyboard.current.digit2Key.wasPressedThisFrame) setTarget(targets[2]);
+            if (Keyboard.current.digit3Key.wasPressedThisFrame) setTarget(targets[3]);
+            if (Keyboard.current.digit4Key.wasPressedThisFrame) setTarget(targets[4]);
+            if (Keyboard.current.digit5Key.wasPressedThisFrame) setTarget(targets[5]);
+            if (Keyboard.current.digit6Key.wasPressedThisFrame) setTarget(targets[6]);
+            if (Keyboard.current.digit7Key.wasPressedThisFrame) setTarget(targets[7]);
+            if (Keyboard.current.digit8Key.wasPressedThisFrame) setTarget(targets[8]);
+            if (Keyboard.current.digit9Key.wasPressedThisFrame) setTarget(targets[9]);
+            if (Keyboard.current.digit0Key.wasPressedThisFrame) setTarget(targets[0]);
+            
+            targets.Clear();
+            targets = null;
         }
 
         private void HandleTimers()
@@ -257,6 +264,25 @@ namespace vynscastingmod
             {
                 headLock = !headLock;
                 Notify(headLock ? "Enabled headlock!" : "Disabled headlock!");
+            }
+
+            if (Keyboard.current.cKey.wasPressedThisFrame)
+            {
+                firstPersonEnabled = !firstPersonEnabled;
+                Notify(firstPersonEnabled ? "Enabled firstperson!" : "Disabled firstperson!");
+                
+                if (firstPersonEnabled)
+                {
+                    disabledCosmeticsRig = target;
+                    
+                    disabledCosmeticsRig.LocalUpdateCosmeticsWithTryon(CosmeticsController.CosmeticSet.EmptySet, CosmeticsController.CosmeticSet.EmptySet, false);
+                }else if (disabledCosmeticsRig == null)
+                {
+                    NetworkView view = (NetworkView)typeof(VRRig).GetField("netView",
+                        BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(disabledCosmeticsRig); // why would you make this internal lemmone :(
+
+                    view.SendRPC("RPC_RequestCosmetics", disabledCosmeticsRig.OwningNetPlayer);
+                }
             }
 
 
@@ -342,6 +368,7 @@ namespace vynscastingmod
                         view.SendRPC("RPC_RequestCosmetics", rig.OwningNetPlayer);
                     }
                 });
+                
                 Notify(cosmeticsHidden ? "Disabled cosemtics." : "Enabled cosemtics.");
             }
             
@@ -403,12 +430,21 @@ namespace vynscastingmod
         }
         private void HandleCameraMovement()
         {
-            Transform targetTransform = headLock ? target.head.rigTarget : target.transform;
+            Transform targetTransform = headLock || firstPersonEnabled ? target.head.rigTarget : target.transform;
             Transform cameraTransform = camera.transform;
             
             Vector3 targetPosition = targetTransform.position;
             
-            if(headLock) targetPosition += targetTransform.up * 0.15f; // actually puts cam at head height when going in head tracker
+            if(headLock || firstPersonEnabled) targetPosition += targetTransform.up * 0.15f; // actually puts cam at head height when going in head tracker
+
+            float lerpDelta = Time.deltaTime * 120; //always gonna have 120fps-like lerping
+            
+            if (firstPersonEnabled)
+            {
+                cameraTransform.position = targetPosition;
+                cameraTransform.rotation = Quaternion.Lerp(cameraTransform.rotation, cameraTransform.rotation, (1-rotSmoothing) * lerpDelta);
+                return;
+            }
             
             targetPosition += targetTransform.up * (yOffset * target.scaleFactor);
             targetPosition += targetTransform.right * (xOffset * target.scaleFactor);
@@ -416,7 +452,6 @@ namespace vynscastingmod
             
             Quaternion targetRotation = headLock ? targetTransform.rotation : Quaternion.LookRotation(targetTransform.position-cameraTransform.position);
             
-            float lerpDelta = Time.deltaTime * 120; //always gonna have 120fps-like lerping
             
             cameraTransform.position = Vector3.Lerp(cameraTransform.position, targetPosition, (1-moveSmoothing) * lerpDelta);
             cameraTransform.rotation = Quaternion.Lerp(cameraTransform.rotation, targetRotation, (1-rotSmoothing) * lerpDelta);
@@ -564,7 +599,7 @@ namespace vynscastingmod
                 
                 GUI.Label(new Rect(5, leaderboardY-y, 190, 30), $"{num}   {plr.playerNameVisible}", labelStyle);
 
-                y += 33;
+                y += 35;
                 num++;
             }
         }
@@ -649,6 +684,7 @@ namespace vynscastingmod
             labelText += "WASDQE -> Offset Camera Position\n";
             labelText += "R -> Reset Offsets\n";
             labelText += "P -> Toggle Headlock\n";
+            labelText += "C -> Toggle FirstPerson\n";
             labelText += "NUMKEYS -> Switch Target, shift makes runners only\n";
             labelText += "-= -> Decrease/Increase movement lerping\n";
             labelText += "[] -> Decrease/Increase rotation lerping\n";
@@ -661,7 +697,7 @@ namespace vynscastingmod
             labelText += "F3 -> Switch Overlays\n";
             labelText += "F4 -> Switch Leaderboards\n";
             labelText += "F5 -> Change Time Of Day\n";
-            labelText += "F6 -> Hide all cosmetics\n";
+            labelText += "F6 -> Toggle cosmetics\n";
             labelText += "Arrows -> Move Overlay, shift for leaderboard\n\n";
             
             
@@ -717,6 +753,9 @@ namespace vynscastingmod
             cfg.WriteLine(leaderboardOverlay);
             cfg.WriteLine(leaderboardY);
             cfg.WriteLine(camera.fieldOfView);
+            
+            cfg.WriteLine(firstPersonEnabled);
+            
             cfg.Close();
         }
 
@@ -724,6 +763,7 @@ namespace vynscastingmod
         {
             StreamReader cfg =  new StreamReader("config.uwu");
             string[] setts = cfg.ReadToEnd().Split("\n");
+            cfg.Close();
             
             xOffset = float.Parse(setts[0]); 
             yOffset = float.Parse(setts[1]);
@@ -753,7 +793,7 @@ namespace vynscastingmod
             leaderboardY = int.Parse(setts[14]);
             
             camera.fieldOfView = float.Parse(setts[15]);
-            cfg.Close();
+            firstPersonEnabled = bool.Parse(setts[16]);
         }
 
         #endregion
@@ -777,6 +817,7 @@ namespace vynscastingmod
         private int team1Score = 0, team2Score = 0;
 
         private bool outdatedBuild = false;
+        private VRRig disabledCosmeticsRig;
         
         #endregion
 
@@ -785,7 +826,7 @@ namespace vynscastingmod
 
         private float xOffset = 0, yOffset = 0, zOffset = 0;
         private float moveSmoothing = 0, rotSmoothing = 0, rigLerpingMultiplier = 1;
-        private bool headLock = true, cosmeticsHidden = false;
+        private bool headLock = false, firstPersonEnabled = false, cosmeticsHidden = false;
 
         public bool nametagsEnabled = false;
         public int nameTagFont = 5, scoreOverlay = 0, leaderboardOverlay = 0;
