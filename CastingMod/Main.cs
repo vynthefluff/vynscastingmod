@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
 using System.Reflection;
 using BepInEx;
 using GorillaLocomotion;
@@ -28,7 +30,7 @@ namespace vynscastingmod
     {
         public const string modId = "com.vyn.castingClient";
         public const string modName = "vyn's casting mod";
-        public const string modVer = "3.0.0";
+        public const string modVer = "3.0.1";
 
         public static Main instance;
         
@@ -89,7 +91,26 @@ namespace vynscastingmod
                 loadedFont = loadedFonts[nameTagFont - 1];
                 Overlays.InitOverlays();
 
-                Application.OpenURL("https://discord.gg/KPhreBySxr");
+                if (!File.Exists("config.uwu"))
+                {
+                    SaveConfig();
+                    Application.OpenURL("https://discord.gg/KPhreBySxr");
+                }else LoadConfig();
+
+                // fetch latest ver from github gist
+                HttpClient c = new HttpClient();
+                var mango = c.GetStringAsync(
+                    "https://gist.githubusercontent.com/vynthefluff/d6ba2812261548833f155fdc7671b75a/raw/");
+                mango.Wait();
+                string latestVersion = mango.Result;
+
+                if (latestVersion != modVer)
+                {
+                    Application.OpenURL("https://github.com/vynthefluff/vynscastingmod/releases/");
+                    outdatedBuild = true;
+                    fetchedVer = latestVersion;
+                }
+                
                 instance = this;
                 initialized = true;
             }
@@ -387,6 +408,16 @@ namespace vynscastingmod
             {
                 centeredText = new GUIStyle(GUI.skin.label);
             }
+
+            if (outdatedBuild)
+            {
+                centeredText.fontSize = 12;
+                centeredText.alignment = TextAnchor.UpperRight;
+                centeredText.normal.textColor = Color.red;
+                GUI.Label(new Rect(5,5,Screen.width-10,Screen.height-10), $"You are using an outdated build of vyn's casting mod\nLatest version: {fetchedVer}", centeredText);
+            
+                centeredText.normal.textColor = Color.white;
+            }
             centeredText.alignment = TextAnchor.UpperCenter;
             centeredText.fontSize = 18;
 
@@ -396,6 +427,12 @@ namespace vynscastingmod
                 color.a = 1 - (uiNotificationTimer / 3);
                 centeredText.normal.textColor = color;
                 GUI.Label(new Rect(0, 5, Screen.width, Screen.height - 5), uiNotificationText, centeredText);
+            }else if (!uiNotificationText.IsNullOrEmpty() && !uiNotificationText.Contains("Config") && uiNotificationTimer > 5)
+            {
+                uiNotificationText = "";
+                SaveConfig();
+                Notify("Autosaved Config.");
+                uiNotificationTimer = 1.5f;
             }
 
             if (scoreOverlay == 0) return;
@@ -512,7 +549,7 @@ namespace vynscastingmod
             }
             else if(GUI.Button(new Rect(5, 40, 200, 30), "Join Room")) PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(roomToJoin, JoinType.Solo);
 
-            string labelText = modName + " v" + modVer + " /// https://discord.gg/KPhreBySxr";
+            string labelText = modName + " " + modVer + " - discord.gg/KPhreBySxr";
             labelText += "Bindings:\n\n";
 
             labelText += "ESC -> Toggle UI (this)\n";
@@ -558,6 +595,48 @@ namespace vynscastingmod
         
         #endregion
 
+        #region Settings
+
+        public void SaveConfig()
+        {
+            StreamWriter cfg = new StreamWriter("config.uwu");
+            
+            cfg.WriteLine(xOffset);
+            cfg.WriteLine(yOffset);
+            cfg.WriteLine(zOffset);
+            
+            cfg.WriteLine(moveSmoothing);
+            cfg.WriteLine(rotSmoothing);
+            cfg.WriteLine(rigLerpingMultiplier);
+            
+            cfg.WriteLine(headLock);
+            
+            cfg.WriteLine(nameTagFont);
+            cfg.WriteLine(scoreOverlay);
+            
+            cfg.Close();
+        }
+
+        public void LoadConfig()
+        {
+            StreamReader cfg =  new StreamReader("config.uwu");
+            string[] setts = cfg.ReadToEnd().Split("\n");
+            
+            xOffset = float.Parse(setts[0]); 
+            yOffset = float.Parse(setts[1]);
+            zOffset = float.Parse(setts[2]);
+            moveSmoothing = float.Parse(setts[3]);
+            rotSmoothing = float.Parse(setts[4]);
+            rigLerpingMultiplier = float.Parse(setts[5]);
+            headLock = bool.Parse(setts[6]);
+            nameTagFont = int.Parse(setts[7]);
+            scoreOverlay = int.Parse(setts[8]);
+            
+            cfg.Close();
+        }
+
+        #endregion
+
         #region Camera variables
         
         public Camera camera;
@@ -567,7 +646,7 @@ namespace vynscastingmod
         private bool initialized = false, isUiOpen = true;
         
         private float uiNotificationTimer = 0;
-        private string uiNotificationText = "";
+        private string uiNotificationText = "", fetchedVer = "";
         private List<TMP_FontAsset> loadedFonts = new List<TMP_FontAsset>();
         private string roomToJoin = "LUCIO";
         private GUIStyle centeredText = null;
@@ -575,7 +654,8 @@ namespace vynscastingmod
         private string team1Name = "TTT";
         private string team2Name = "TSO";
         private int team1Score = 0, team2Score = 0;
-        
+
+        private bool outdatedBuild = false;
         
         #endregion
 
