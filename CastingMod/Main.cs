@@ -91,25 +91,34 @@ namespace vynscastingmod
                 loadedFont = loadedFonts[nameTagFont - 1];
                 Overlays.InitOverlays();
 
-                if (!File.Exists("config.uwu"))
+                try
                 {
-                    SaveConfig();
-                    Application.OpenURL("https://discord.gg/KPhreBySxr");
-                }else LoadConfig();
+                    if (!File.Exists("config.uwu"))
+                    {
+                        SaveConfig();
+                        Application.OpenURL("https://discord.gg/KPhreBySxr");
+                    }else LoadConfig();
+                }catch(Exception) {} // sometimes when updating from older versions, loading configs causes errors :p
+                
 
-                // fetch latest ver from github gist
-                HttpClient c = new HttpClient();
-                var mango = c.GetStringAsync(
-                    "https://gist.githubusercontent.com/vynthefluff/d6ba2812261548833f155fdc7671b75a/raw/");
-                mango.Wait();
-                string latestVersion = mango.Result;
-
-                if (latestVersion != modVer)
+                try
                 {
-                    Application.OpenURL("https://github.com/vynthefluff/vynscastingmod/releases/");
-                    outdatedBuild = true;
-                    fetchedVer = latestVersion;
+                    // fetch latest ver from github gist
+                    HttpClient c = new HttpClient();
+                    var mango = c.GetStringAsync(
+                        "https://gist.githubusercontent.com/vynthefluff/d6ba2812261548833f155fdc7671b75a/raw/");
+                    mango.Wait();
+                    string latestVersion = mango.Result;
+
+                    if (latestVersion != modVer)
+                    {
+                        Application.OpenURL("https://github.com/vynthefluff/vynscastingmod/releases/");
+                        outdatedBuild = true;
+                        fetchedVer = latestVersion;
+                    }
                 }
+                catch (Exception) { }
+
                 
                 instance = this;
                 initialized = true;
