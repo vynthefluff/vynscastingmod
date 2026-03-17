@@ -328,10 +328,13 @@ namespace vynscastingmod
             
             
             // moving overlay thingy :3
+            int overlayPre = overlayX + overlayY;
             if (Keyboard.current.upArrowKey.isPressed) overlayY -= 3;
             if (Keyboard.current.downArrowKey.isPressed) overlayY += 3;
             if (Keyboard.current.leftArrowKey.isPressed) overlayX -= 3;
             if (Keyboard.current.rightArrowKey.isPressed) overlayX += 3;
+            int overlayPost = overlayX + overlayY;
+            if(overlayPost != overlayPre) Notify($"Changed overlay pos!\nPosX: {overlayX}\nPosY: {overlayY}");
             
             if(overlayX < 267) overlayX = 267;
             if(overlayX > Screen.width-267) overlayX = Screen.width-267;
