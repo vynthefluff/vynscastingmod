@@ -120,7 +120,14 @@ namespace vynscastingmod
                 }
                 catch (Exception) { }
 
-                DiscordRPCImpl.InitRPC(); // Discord RPC library from https://github.com/Lachee/discord-rpc-csharp
+                try
+                {
+                    DiscordRPCImpl.InitRPC(); // Discord RPC library from https://github.com/Lachee/discord-rpc-csharp
+                }
+                catch (Exception) //stopped launching if discord wasnt open
+                {
+                }
+
                 
                 instance = this;
                 initialized = true;
