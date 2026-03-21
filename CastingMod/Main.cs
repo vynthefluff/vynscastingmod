@@ -188,32 +188,11 @@ namespace vynscastingmod
                 loadedRigs.Reverse(); // reverse order so 0 is always our offlineRig.
             }
         }
-
-        private void setTarget(int targetNum)
-        {
-            target.lerpValueBody = 0.155f;
-            target.lerpValueFingers = 0.155f;
-
-            if (firstPersonEnabled)
-            {
-                NetworkView view = (NetworkView)typeof(VRRig).GetField("netView",
-                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(disabledCosmeticsRig); // why would you make this internal lemmone :(
-
-                view.SendRPC("RPC_RequestCosmetics", disabledCosmeticsRig.OwningNetPlayer);
-            }
-
-            target = loadedRigs[targetNum];
-
-            if (firstPersonEnabled)
-            {
-                disabledCosmeticsRig = target;
-                        
-                disabledCosmeticsRig.LocalUpdateCosmeticsWithTryon(CosmeticsController.CosmeticSet.EmptySet, CosmeticsController.CosmeticSet.EmptySet, false);
-            }
-        }
         
         private void setTarget(VRRig rig)
         {
+            if (rig == target) return;
+            
             target.lerpValueBody = 0.155f;
             target.lerpValueFingers = 0.155f;
 
@@ -310,8 +289,9 @@ namespace vynscastingmod
 
             if (Keyboard.current.pKey.wasPressedThisFrame)
             {
-                headLock = !headLock;
-                Notify(headLock ? "Enabled headlock!" : "Disabled headlock!");
+                perspective++;
+                if (perspective > 2) perspective = 0;
+                Notify($"Changed perspective!\nPerspective: {perspective}");
             }
 
             if (Keyboard.current.cKey.wasPressedThisFrame)
@@ -487,12 +467,12 @@ namespace vynscastingmod
         }
         private void HandleCameraMovement()
         {
-            Transform targetTransform = headLock || firstPersonEnabled ? target.head.rigTarget : target.transform;
+            Transform targetTransform = perspective == 0 || firstPersonEnabled ? target.head.rigTarget : target.transform;
             Transform cameraTransform = camera.transform;
             
             Vector3 targetPosition = targetTransform.position;
             
-            if(headLock || firstPersonEnabled) targetPosition += targetTransform.up * 0.15f; // actually puts cam at head height when going in head tracker
+            if(perspective == 0 || firstPersonEnabled) targetPosition += targetTransform.up * 0.15f; // actually puts cam at head height when going in head tracker
 
             float lerpDelta = Time.deltaTime * 120; //always gonna have 120fps-like lerping
             
@@ -506,8 +486,11 @@ namespace vynscastingmod
             targetPosition += targetTransform.up * (yOffset * target.scaleFactor);
             targetPosition += targetTransform.right * (xOffset * target.scaleFactor);
             targetPosition += targetTransform.forward * (zOffset * target.scaleFactor);
+
+            Quaternion targetRotation;
             
-            Quaternion targetRotation = headLock ? targetTransform.rotation : Quaternion.LookRotation(targetTransform.position-cameraTransform.position);
+            targetRotation = targetTransform.rotation;
+            if(perspective == 1) targetRotation = Quaternion.LookRotation(targetTransform.position-cameraTransform.position);
             
             
             cameraTransform.position = Vector3.Lerp(cameraTransform.position, targetPosition, (1-moveSmoothing) * lerpDelta);
@@ -787,7 +770,7 @@ namespace vynscastingmod
             labelText += $"X Offset: {xOffset}\n";
             labelText += $"Y Offset: {yOffset}\n";
             labelText += $"Z Offset: {zOffset}\n";
-            labelText += $"Headlock: {headLock}\n";
+            labelText += $"Perspective: {perspective}\n";
             labelText += $"Move Lerping: {moveSmoothing}\n";
             labelText += $"Rot Lerping: {rotSmoothing}\n";
             labelText += $"Rig Lerping: {rigLerpingMultiplier}\n";
@@ -814,7 +797,7 @@ namespace vynscastingmod
             cfg.WriteLine(rotSmoothing);
             cfg.WriteLine(rigLerpingMultiplier);
             
-            cfg.WriteLine(headLock);
+            cfg.WriteLine(perspective);
             
             cfg.WriteLine(nameTagFont);
             cfg.WriteLine(scoreOverlay);
@@ -846,7 +829,7 @@ namespace vynscastingmod
             moveSmoothing = float.Parse(setts[3]);
             rotSmoothing = float.Parse(setts[4]);
             rigLerpingMultiplier = float.Parse(setts[5]);
-            headLock = bool.Parse(setts[6]);
+            perspective = int.Parse(setts[6]);
             nameTagFont = int.Parse(setts[7]);
             loadedFont = loadedFonts[nameTagFont - 1];
             scoreOverlay = int.Parse(setts[8]);
@@ -901,13 +884,13 @@ namespace vynscastingmod
 
         private float xOffset = 0, yOffset = 0, zOffset = 0;
         private float moveSmoothing = 0, rotSmoothing = 0, rigLerpingMultiplier = 1;
-        private bool headLock = false, firstPersonEnabled = false, cosmeticsHidden = false;
+        private bool firstPersonEnabled = false, cosmeticsHidden = false;
 
         public bool nametagsEnabled = false;
         public int nameTagFont = 5, scoreOverlay = 0, leaderboardOverlay = 0;
         public TMP_FontAsset loadedFont;
 
-        private int overlayX = -1, overlayY = -1, leaderboardY = -1, timeOfDay = 0;
+        private int overlayX = -1, overlayY = -1, leaderboardY = -1, timeOfDay = 0, perspective = 1;
 
         #endregion
 
