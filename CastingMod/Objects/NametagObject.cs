@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using GorillaNetworking;
 using TMPro;
 using UnityEngine;
@@ -52,7 +54,39 @@ namespace vynscastingmod.Objects
             textObj.font = Main.instance.loadedFont;
             textObj.transform.position = attachedRig.transform.position + (Vector3.up * 0.4f);
             textObj.transform.rotation = Main.instance.camera.transform.rotation;
-            textObj.text = attachedRig.playerNameVisible;
+            textObj.text = attachedRig.playerNameVisible + "<size=2>";
+            
+            if (Main.instance.nametagFPS)
+            {
+                var field = typeof(VRRig).GetField("fps", BindingFlags.NonPublic | BindingFlags.Instance);
+                textObj.text += "\n<size=5>FPS: " + field.GetValue(attachedRig).ToString();
+                textObj.transform.position += (Vector3.up * 0.06f);
+            }
+            
+            if (Main.instance.nametagPlat)
+            {
+                string plat = "Oculus";
+            
+                try
+                {
+                    var field = typeof(VRRig).GetField(
+                        "_playerOwnedCosmetics",
+                        BindingFlags.Instance | BindingFlags.NonPublic
+                    );
+                    var cosmetics = (HashSet<string>)field.GetValue(attachedRig);
+
+                    cosmetics.ForEach(c =>
+                    {
+                        if (c.ToLower().Contains("first login")) plat = "Steam";
+                        if (c.ToLower().Contains("game-purchase")) plat = "Oculus PC";
+                    });
+                }
+                catch (Exception eee) { }
+                
+                textObj.text += "\n<size=5>" + plat;
+                textObj.transform.position += (Vector3.up * 0.06f);
+            }
+            
             textObj.color = attachedRig.playerColor;
         }
 

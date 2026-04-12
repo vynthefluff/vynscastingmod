@@ -363,6 +363,20 @@ namespace vynscastingmod
             
             if (Keyboard.current.f3Key.wasPressedThisFrame)
             {
+                nametagFPS = !nametagFPS;
+                Notify(nametagFPS ? "Enabled nametags FPS!" : "Disabled nametags FPS!");
+            }
+            
+            if (Keyboard.current.f4Key.wasPressedThisFrame)
+            {
+                nametagPlat = !nametagPlat;
+                Notify(nametagPlat ? "Enabled nametags Platform!" : "Disabled nametags Platform!");
+            }
+            
+            
+            
+            if (Keyboard.current.f5Key.wasPressedThisFrame)
+            {
                 scoreOverlay++;
                 if (scoreOverlay > (File.Exists("TeamInfo.png") ? 4 : 3)) scoreOverlay = 0;
                 
@@ -373,7 +387,7 @@ namespace vynscastingmod
                 Notify($"Set score overlay to: {scoreOverlay}");
             }
             
-            if (Keyboard.current.f4Key.wasPressedThisFrame)
+            if (Keyboard.current.f6Key.wasPressedThisFrame)
             {
                 leaderboardOverlay++;
                 if (leaderboardOverlay > (File.Exists("Scoreboard.png") ? 2 : 1)) leaderboardOverlay = 0;
@@ -384,14 +398,14 @@ namespace vynscastingmod
                 Notify($"Set leaderboard overlay to: {leaderboardOverlay}");
             }
             
-            if (Keyboard.current.f5Key.wasPressedThisFrame)
+            if (Keyboard.current.f7Key.wasPressedThisFrame)
             {
                 timeOfDay++;
                 if (timeOfDay > 9) timeOfDay = 0;
                 Notify($"Set time of day to: {timeOfDay}");
             }
             
-            if (Keyboard.current.f6Key.wasPressedThisFrame)
+            if (Keyboard.current.f8Key.wasPressedThisFrame)
             {
                 cosmeticsHidden = !cosmeticsHidden;
                 loadedRigs.ForEach(rig =>
@@ -756,10 +770,12 @@ namespace vynscastingmod
             labelText += "V -> Push To Talk\n";
             labelText += "F1 -> Toggle Nametags\n";
             labelText += "F2 -> Change Nametag font\n";
-            labelText += "F3 -> Switch Overlays\n";
-            labelText += "F4 -> Switch Leaderboards\n";
-            labelText += "F5 -> Change Time Of Day\n";
-            labelText += "F6 -> Toggle cosmetics\n";
+            labelText += "F3 -> Show Nametag FPS\n";
+            labelText += "F4 -> Show Nametag Platform\n";
+            labelText += "F5 -> Switch Overlays\n";
+            labelText += "F6 -> Switch Leaderboards\n";
+            labelText += "F7 -> Change Time Of Day\n";
+            labelText += "F8 -> Toggle cosmetics\n";
             labelText += "Arrows -> Move Overlay, shift for leaderboard\n\n";
             
             
@@ -892,7 +908,7 @@ namespace vynscastingmod
         private float moveSmoothing = 0, rotSmoothing = 0, rigLerpingMultiplier = 1;
         private bool firstPersonEnabled = false, cosmeticsHidden = false;
 
-        public bool nametagsEnabled = false;
+        public bool nametagsEnabled = false, nametagFPS = true, nametagPlat = false;
         public int nameTagFont = 5, scoreOverlay = 0, leaderboardOverlay = 0;
         public TMP_FontAsset loadedFont;
 
