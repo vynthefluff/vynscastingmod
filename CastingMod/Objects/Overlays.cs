@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using UnityEngine;
 
 namespace vynscastingmod.Objects
@@ -11,6 +12,9 @@ namespace vynscastingmod.Objects
             cgtPink.LoadImage(cgtPinkBytes);
             leaderboardPart.LoadImage(leaderboardBytes);
             vynDefault.LoadImage(vynDefaultBytes);
+            
+            if (File.Exists("TeamInfo.png")) customScoreboard.LoadImage(File.ReadAllBytes("TeamInfo.png"));
+            if (File.Exists("Scoreboard.png")) customLeaderboard.LoadImage(File.ReadAllBytes("Scoreboard.png"));
         }
         
         // store our overlays as base64 bytes
