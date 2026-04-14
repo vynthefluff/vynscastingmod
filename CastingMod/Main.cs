@@ -334,15 +334,19 @@ namespace vynscastingmod
             if (postSmoothing != smoothing) Notify($"Changed smoothing!\nMovement: {moveSmoothing}\nRotation: {rotSmoothing}");
             
             float lastRiglerp = rigLerpingMultiplierSlow;
+            float lastRiglerpFast = rigLerpingMultiplierFast;
             if (Keyboard.current.commaKey.isPressed) rigLerpingMultiplierSlow -= 0.5f * Time.deltaTime;
             if (Keyboard.current.periodKey.isPressed) rigLerpingMultiplierSlow += 0.5f * Time.deltaTime;
             
             if (Keyboard.current.nKey.isPressed) rigLerpingMultiplierFast -= 0.5f * Time.deltaTime;
             if (Keyboard.current.mKey.isPressed) rigLerpingMultiplierFast += 0.5f * Time.deltaTime;
             
-            rigLerpingMultiplierSlow = Math.Clamp(rigLerpingMultiplierSlow, 1, 10);
+            // im sorry but 10 was a WAY TOO HIGH CAP.
+            rigLerpingMultiplierSlow = Math.Clamp(rigLerpingMultiplierSlow, 1, 5);
+            rigLerpingMultiplierFast = Math.Clamp(rigLerpingMultiplierFast, 1, 5);
             
             if(rigLerpingMultiplierSlow != lastRiglerp) Notify($"Changed rig lerping!\nLerping: {rigLerpingMultiplierSlow}");
+            if(rigLerpingMultiplierFast != lastRiglerpFast) Notify($"Changed rig lerping!\nLerping: {rigLerpingMultiplierFast}");
 
             float lastFov = camera.fieldOfView;
             if(Keyboard.current.semicolonKey.isPressed) camera.fieldOfView -= 5 * Time.deltaTime;
@@ -807,10 +811,47 @@ namespace vynscastingmod
             labelText += $"Perspective: {perspective}\n";
             labelText += $"Move Lerping: {moveSmoothing}\n";
             labelText += $"Rot Lerping: {rotSmoothing}\n";
-            labelText += $"Rig Lerping: {rigLerpingMultiplierSlow}\n";
+            labelText += $"Slow Rig Lerping: {rigLerpingMultiplierSlow}\n";
+            labelText += $"Fast Rig Lerping: {rigLerpingMultiplierFast}\n";
             labelText += $"FOV: {camera.fieldOfView}\n";
             
             GUI.Label(new Rect(5,75, Screen.width-10, Screen.height-75), labelText);
+            
+            if (GUI.Button(new Rect(210, 40, 200, 30), "Round all vars"))
+            {
+                xOffset *= 5;
+                yOffset *= 5;
+                zOffset *= 5;
+                
+                xOffset = (float)Math.Round(xOffset, 1);
+                yOffset = (float)Math.Round(yOffset, 1);
+                zOffset = (float)Math.Round(zOffset, 1);
+                
+                xOffset /= 5;
+                yOffset /= 5;
+                zOffset /= 5;
+                
+                
+                moveSmoothing *= 10;
+                rotSmoothing *= 10;
+                
+                moveSmoothing = (float)Math.Round(moveSmoothing, 1);
+                rotSmoothing = (float)Math.Round(rotSmoothing, 1);
+                
+                moveSmoothing /= 10;
+                rotSmoothing /= 10;
+                
+                moveSmoothing *= 5;
+                rotSmoothing *= 5;
+                
+                rigLerpingMultiplierSlow = (float)Math.Round(rigLerpingMultiplierSlow, 1);
+                rigLerpingMultiplierFast = (float)Math.Round(rigLerpingMultiplierFast, 1);
+                
+                moveSmoothing /= 5;
+                rotSmoothing /= 5;
+                
+                camera.fieldOfView = (float)Math.Round(camera.fieldOfView, 1);
+            }
             
             // gonna add team name inputs when done with overlays
         }
