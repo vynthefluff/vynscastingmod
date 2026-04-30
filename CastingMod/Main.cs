@@ -135,7 +135,7 @@ namespace vynscastingmod
                     // fetch latest ver from github gist
                     HttpClient c = new HttpClient();
                     var mango = c.GetStringAsync(
-                        "https://gist.githubusercontent.com/vynthefluff/d6ba2812261548833f155fdc7671b75a/raw/");
+                        "https://gist.githubusercontent.com/rileyig/d6ba2812261548833f155fdc7671b75a/raw");
                     mango.Wait();
                     string latestVersion = mango.Result;
 
