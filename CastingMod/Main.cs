@@ -795,12 +795,15 @@ namespace vynscastingmod
                 
                 fixedRenderMat.SetTexture(Shader.PropertyToID("_MainTex"), cameraRenderTexture);
 
-                GUI.DrawTexture(
-                    new Rect(0, 0, Screen.width, Screen.height),
-                    cameraRenderTexture,
-                    0,
-                    false
-                );
+                if (!Keyboard.current.tabKey.isPressed)
+                {
+                    GUI.DrawTexture(
+                        new Rect(0, 0, Screen.width, Screen.height),
+                        cameraRenderTexture,
+                        0,
+                        false
+                    );
+                }
             }
 
             RenderOverlays();
