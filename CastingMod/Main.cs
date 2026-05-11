@@ -537,7 +537,13 @@ namespace vynscastingmod
             
             Vector3 targetPosition = targetTransform.position;
             
-            if(perspective == 0 || firstPersonEnabled) targetPosition += targetTransform.up * 0.15f; // actually puts cam at head height when going in head tracker
+            if(perspective == 0 || firstPersonEnabled)
+            {
+                
+                targetPosition += targetTransform.up * 0.15f; // actually puts cam at head height when going in head tracker
+
+                if (target == GorillaTagger.Instance.offlineVRRig) targetPosition = Camera.main.transform.position; 
+            }
 
             float lerpDelta = Time.deltaTime * 120; //always gonna have 120fps-like lerping
             
