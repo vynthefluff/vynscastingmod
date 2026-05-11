@@ -47,12 +47,14 @@ namespace vynscastingmod
         
         public const string modId = "com.vyn.castingClient";
         public const string modName = "vyn's casting mod";
-        public const string modVer = "3.0.3";
+        public const string modVer = "3.0.4";
 
         public static Main instance;
         
         public void LateUpdate() // Testing lateUpdate, should fix camera jittering.
         {
+            if (!shouldInit) return;
+            
             if (!initialized)
             {
 
@@ -778,6 +780,11 @@ namespace vynscastingmod
 
         public void OnGUI()
         {
+            if (!shouldInit)
+            {
+                if (GUI.Button(new Rect(5, 5, 200, 30), "Enable camera")) shouldInit = true;
+                return;
+            }
             if (!initialized) return;
 
             GUI.color = Color.white;
@@ -989,7 +996,7 @@ namespace vynscastingmod
         private List<VRRig> loadedRigs = new List<VRRig>();
         private VRRig target;
         private VRRig offlineRig;
-        private bool initialized = false, isUiOpen = true;
+        private bool initialized = false, isUiOpen = true, shouldInit = false;
         
         private float uiNotificationTimer = 0;
         private string uiNotificationText = "", fetchedVer = "";
