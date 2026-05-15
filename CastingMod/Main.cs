@@ -90,10 +90,10 @@ namespace vynscastingmod
                     addCam.renderPostProcessing = false;
                     addCam.SetRenderer(0); 
                     addCam.renderType = CameraRenderType.Base;
-                }
                 
-                Destroy(Camera.main.GetComponent<AudioListener>());
-                camera.AddComponent<AudioListener>();
+                    Destroy(Camera.main.GetComponent<AudioListener>());
+                    camera.AddComponent<AudioListener>();
+                }
                 
                 
                 // This codes taken from my old casting mod btw, so sorry its janky.
