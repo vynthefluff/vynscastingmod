@@ -162,7 +162,13 @@ namespace vynscastingmod
                 instance = this;
                 initialized = true;
             }
-            
+
+            var timeMgr = BetterDayNightManager.instance;
+            if (timeMgr.currentTimeIndex != timeOfDay)
+            {
+                timeMgr.SetTimeOfDay(timeOfDay);
+                timeMgr.UpdateTimeOfDay();
+            }
             Application.targetFrameRate = int.MaxValue; // Gtag's fps is capped at 144 by default - no thanks.
             PhotonNetworkController.Instance.disableAFKKick = true; // ensure we dont get kicked for not moving.
 
@@ -759,9 +765,6 @@ namespace vynscastingmod
             // Notification stuffs
             if (!uiNotificationText.IsNullOrEmpty() && uiNotificationTimer < 3) // only show notif text under 3 secs
             {
-                BetterDayNightManager.instance.SetTimeOfDay(timeOfDay); // as stupid as it seems to have this in OnGUI, it's kinda better because
-                // it doesn't have the performance hit that doing it every frame on Update does, but calling it just once doesnt work sometimes.
-                
                 Color color = Color.white;
                 color.a = 1 - (uiNotificationTimer / 3);
                 labelStyle.normal.textColor = color;
