@@ -22,7 +22,7 @@ namespace vynscastingmod
                 
                 Buttons = new Button[]
                 {
-                    new Button() { Label = "Github", Url = "https://github.com/vynthefluff/vynscastingmod" },
+                    new Button() { Label = "Github", Url = "https://github.com/rileyig/vynscastingmod" },
                     new Button() { Label = "Discord", Url = "https://discord.gg/KPhreBySxr" }
                     
                 }

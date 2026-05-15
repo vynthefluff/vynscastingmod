@@ -17,7 +17,7 @@ using vynscastingmod.Objects;
 
 /*
  
- *  Vyn's casting mod - developed by Frapster/vyn (@vynthefluff on github)
+ *  Vyn's casting mod - developed by Frapster/vyn (@rileyig on github)
  *  Sorry for not writing many comments - I normally don't purposefully open-
  *  source my projects, so I rarely remember to xD.
  *  Enjoy the casting mod :3
@@ -143,7 +143,7 @@ namespace vynscastingmod
 
                     if (latestVersion != modVer)
                     {
-                        Application.OpenURL("https://github.com/vynthefluff/vynscastingmod/releases/");
+                        Application.OpenURL("https://github.com/rileyig/vynscastingmod/releases/");
                         outdatedBuild = true;
                         fetchedVer = latestVersion;
                     }
