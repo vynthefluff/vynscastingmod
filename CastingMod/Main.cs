@@ -331,7 +331,18 @@ namespace vynscastingmod
             {
                 perspective++;
                 if (perspective > 2) perspective = 0;
-                Notify($"Changed perspective!\nPerspective: {perspective}");
+                string mode = "Head lock";
+                switch (perspective)
+                {
+                    case 1:
+                        mode = "Body Stare";
+                        break;
+                    case 2:
+                        mode = "Body lock";
+                        break;
+                }
+                
+                Notify($"Changed perspective!\nPerspective: {mode}");
             }
 
             if (Keyboard.current.cKey.wasPressedThisFrame)
