@@ -50,42 +50,70 @@ namespace vynscastingmod.Objects
                 Destroy(textObj.gameObject);
                 Destroy(this);
             }
+            
+            
+            
+            // PLAT FORMS!
+            
+            string plat = "OCULUS";
+            
+            try
+            {
+                var field = typeof(VRRig).GetField(
+                    "_playerOwnedCosmetics",
+                    BindingFlags.Instance | BindingFlags.NonPublic
+                );
+                var cosmetics = (HashSet<string>)field.GetValue(attachedRig);
+
+                cosmetics.ForEach(c =>
+                {
+                    if (c.ToLower().Contains("first login")) plat = "STEAM";
+                    if (c.ToLower().Contains("game-purchase")) plat = "OCULUS PC";
+                });
+            }
+            catch (Exception eee) { }
+            
+            // PLAT FORMS!
+            
+            
 
             textObj.font = Main.instance.loadedFont;
             textObj.transform.position = attachedRig.transform.position + (Vector3.up * 0.4f);
             textObj.transform.rotation = Main.instance.camera.transform.rotation;
-            textObj.text = attachedRig.playerNameVisible;
+            textObj.text = "";
             
-            if (Main.instance.nametagFPS)
+            if (Main.instance.nametagFPS == 2)
             {
                 var field = typeof(VRRig).GetField("fps", BindingFlags.NonPublic | BindingFlags.Instance);
-                textObj.text += "\n<size=5>" + field.GetValue(attachedRig) + "FPS";
+                textObj.text += "<size=5>" + field.GetValue(attachedRig) + "FPS\n";
                 textObj.transform.position += (Vector3.up * 0.06f);
             }
             
-            if (Main.instance.nametagPlat)
+            if (Main.instance.nametagPlat == 2)
             {
-                string plat = "OCULUS";
-            
-                try
-                {
-                    var field = typeof(VRRig).GetField(
-                        "_playerOwnedCosmetics",
-                        BindingFlags.Instance | BindingFlags.NonPublic
-                    );
-                    var cosmetics = (HashSet<string>)field.GetValue(attachedRig);
-
-                    cosmetics.ForEach(c =>
-                    {
-                        if (c.ToLower().Contains("first login")) plat = "STEAM";
-                        if (c.ToLower().Contains("game-purchase")) plat = "OCULUS PC";
-                    });
-                }
-                catch (Exception eee) { }
                 
-                textObj.text += "\n<size=5>" + plat;
+                textObj.text += "<size=5>" + plat+"\n";
                 textObj.transform.position += (Vector3.up * 0.06f);
             }
+            
+            
+            textObj.text += "<size=8>" + attachedRig.playerNameVisible;
+            
+            
+            if (Main.instance.nametagFPS == 1)
+            {
+                var field = typeof(VRRig).GetField("fps", BindingFlags.NonPublic | BindingFlags.Instance);
+                textObj.text += "<size=5>\n" + field.GetValue(attachedRig) + "FPS";
+                textObj.transform.position += (Vector3.up * 0.06f);
+            }
+            
+            if (Main.instance.nametagPlat == 1)
+            {
+                
+                textObj.text += "<size=5>\n" + plat;
+                textObj.transform.position += (Vector3.up * 0.06f);
+            }
+            
             
             textObj.color = attachedRig.playerColor;
         }

@@ -47,7 +47,7 @@ namespace vynscastingmod
         
         public const string modId = "com.vyn.castingClient";
         public const string modName = "vyn's casting mod";
-        public const string modVer = "3.0.4";
+        public const string modVer = "3.0.5";
 
         public static Main instance;
         
@@ -406,14 +406,36 @@ namespace vynscastingmod
             
             if (Keyboard.current.f3Key.wasPressedThisFrame)
             {
-                nametagFPS = !nametagFPS;
-                Notify(nametagFPS ? "Enabled nametags FPS!" : "Disabled nametags FPS!");
+                nametagFPS++;
+                if (nametagFPS > 2) nametagFPS = 0;
+                string message = "Disabled nametags FPS!";
+                switch (nametagFPS)
+                {
+                    case 1:
+                        message = "Enabled nametags FPS! (Below)";
+                        break;
+                    case 2:
+                        message = "Enabled nametags FPS! (Above)";
+                        break;
+                }
+                Notify(message);
             }
             
             if (Keyboard.current.f4Key.wasPressedThisFrame)
             {
-                nametagPlat = !nametagPlat;
-                Notify(nametagPlat ? "Enabled nametags Platform!" : "Disabled nametags Platform!");
+                nametagPlat++;
+                if (nametagPlat > 2) nametagPlat = 0;
+                string message = "Disabled nametags Platform!";
+                switch (nametagPlat)
+                {
+                    case 1:
+                        message = "Enabled nametags Platform! (Below)";
+                        break;
+                    case 2:
+                        message = "Enabled nametags Platform! (Above)";
+                        break;
+                }
+                Notify(message);
             }
             
             
@@ -996,8 +1018,8 @@ namespace vynscastingmod
             firstPersonEnabled = bool.Parse(setts[16]);
             rigLerpingMultiplierFast = float.Parse(setts[17]);
             
-            nametagFPS = bool.Parse(setts[18]);
-            nametagPlat = bool.Parse(setts[19]);
+            nametagFPS = int.Parse(setts[18]);
+            nametagPlat = int.Parse(setts[19]);
         }
 
         #endregion
@@ -1036,7 +1058,8 @@ namespace vynscastingmod
         private float moveSmoothing = 0, rotSmoothing = 0, rigLerpingMultiplierSlow = 1, rigLerpingMultiplierFast = 1;
         private bool firstPersonEnabled = false, cosmeticsHidden = false;
 
-        public bool nametagsEnabled = false, nametagFPS = true, nametagPlat = false;
+        public bool nametagsEnabled = false;
+        public int nametagFPS = 1, nametagPlat = 0;
         public int nameTagFont = 5, scoreOverlay = 0, leaderboardOverlay = 0;
         public TMP_FontAsset loadedFont;
 
